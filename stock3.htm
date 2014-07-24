@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Highstock Example</title>
+
+		<script type="text/javascript" src="jquery-2.0.0.min.js"></script>
+		<style type="text/css">
+${demo.css}
+		</style>
+		<script type="text/javascript">
+$(function() {
+	$.getJSON('http://xueqiu.com/stock/forchartk/stocklist.json?period=1day&symbol=SZ300104&type=normal&callback=?', function(fdata) {
+
+		// split the data set into ohlc and volume
+		var ohlc = [],
+			volume = [],
+			data = fdata.chartlist,
+			dataLength = data.length-1;
+
+			console.log(data);
+			
+		for (i = 0; i < dataLength; i++) {
+			var timeStamp = (new Date(data[i].time)).getTime();
+			ohlc.push([
+				timeStamp, // the date
+				data[i].open, // open
+				data[i].high, // high
+				data[i].low, // low
+				data[i].close // close
+			]);			
+			
+			volume.push([
+				timeStamp, // the date
+				data[i].volume // the volume
+			])
+		}
+
+		// set the allowed units for data grouping
+		var groupingUnits = [[
+			'week',                         // unit name
+			[1]                             // allowed multiples
+		], [
+			'month',
+			[1, 2, 3, 4, 6]
+		]];
+
+		// create the chart
+		$('#container').highcharts('StockChart', {
+		    
+		    rangeSelector: {
+				inputEnabled: $('#container').width() > 480,
+		        selected: 1
+		    },
+
+		    title: {
+		        text: 'AAPL Historical'
+		    },
+
+		    yAxis: [{
+		        labels: {
+		    		align: 'right',
+		    		x: -3
+		    	},
+		        title: {
+		            text: 'OHLC'
+		        },
+		        height: '60%',
+		        lineWidth: 2
+		    }, {
+		    	labels: {
+		    		align: 'right',
+		    		x: -3
+		    	},
+		        title: {
+		            text: 'Volume'
+		        },
+		        top: '65%',
+		        height: '35%',
+		        offset: 0,
+		        lineWidth: 2
+		    }],
+		    
+		    series: [{
+		        type: 'candlestick',
+		        name: 'AAPL',
+		        data: ohlc,
+		        dataGrouping: {
+					units: groupingUnits
+		        }
+		    }, {
+		        type: 'column',
+		        name: 'Volume',
+		        data: volume,
+		        yAxis: 1,
+		        dataGrouping: {
+					units: groupingUnits
+		        }
+		    }]
+		});
+	});
+});
+		</script>
+	</head>
+	<body>
+<script src="Highstock/js/highstock.js"></script>
+<script src="Highstock/js/themes/dark-green.js"></script>
+<script src="Highstock/js/modules/exporting.js"></script>
+
+
+<div id="container" style="height: 400px; min-width: 310px"></div>
+	</body>
+</html>

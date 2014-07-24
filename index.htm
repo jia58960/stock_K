@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Highcharts Example</title>
+
+		<script type="text/javascript" src="jquery-2.0.0.min.js"></script>
+		
+		<script type="text/javascript">
+$(function () {
+        $('#container').highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: '秦川发展(000837)持股一览表'
+            },
+            subtitle: {
+                text: '（目前为止秦川发展持股情况）'
+            },
+            xAxis: {
+            	min: 0,
+                categories: ['5.6-5.8', '6.0-6.2', '6.2-6.4', '6.4-6.6', '6.6-6.8', '7.0-7.2', '7.2-7.4'],
+                title: {
+                    text: '买入单价(元)',
+                    style: {
+                    	fontFamily: 'microsoft yahei',
+                    	fontSize: '14px',
+                    	align: 'left'
+                    }
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: '持股数量 (手)',
+                    style: {
+                    	fontFamily: 'microsoft yahei',
+                    	fontSize: '14px',
+                    	align: 'left'
+                    }
+                }
+            },
+            tooltip: {
+            	
+                formatter: function() {
+                	return '<b>'+ this.x +'：'+ this.y +'手</b>';
+            	}
+            },
+            legend: {
+                align: 'right',
+                verticalAlign: 'top',
+                enabled: false,
+                borderWidth: 1,               
+                shadow: true,
+                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColorSolid) || 'white',
+            },
+            plotOptions: {
+	            column: {
+	                stacking: 'normal',
+	                dataLabels: {
+	                    enabled: true,
+	                    color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+	                }
+	            }
+	        },
+            series: [
+            	{
+            	name: '持股数: ',
+                data: [9.8, 5, 4, 2, 6, 1, 7]
+            	}
+
+        	]
+        });
+    });
+    
+
+		</script>
+	</head>
+	<body>
+<script src="Highcharts/js/highcharts.js"></script>
+<script src="Highcharts/js/themes/dark-green.js"></script>
+<script src="Highcharts/js/modules/exporting.js"></script>
+
+<div id="container" style="min-width: 310px; max-width: 800px; height: 400px; margin: 0 auto"></div>
+
+
+	</body>
+</html>

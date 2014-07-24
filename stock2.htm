@@ -1,0 +1,487 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>测试K线图</title>
+
+		<script type="text/javascript" src="jquery-2.0.0.min.js"></script>
+		<style type="text/css">
+${demo.css}
+		</style>
+		<script type="text/javascript">
+$(function() {
+	$.getJSON('http://xueqiu.com/stock/forchartk/stocklist.json?period=1day&symbol=SZ300104&type=normal&callback=?', function(fdata) {
+		 //修改colum条的颜色（重写了源码方法）
+	 var originalDrawPoints = Highcharts.seriesTypes.column.prototype.drawPoints;
+	    Highcharts.seriesTypes.column.prototype.drawPoints = function () {
+	        var merge  = Highcharts.merge,
+	            series = this,
+	            chart  = this.chart,
+	            points = series.points,
+	            i      = points.length;
+	        
+	        while (i--) {
+	            var candlePoint = chart.series[0].points[i];
+	            if(candlePoint.open != undefined && candlePoint.close !=  undefined){  //如果是K线图 改变矩形条颜色，否则不变
+		            var color = (candlePoint.open < candlePoint.close) ? '#DD2200' : '#33AA11';
+		            var seriesPointAttr = merge(series.pointAttr);
+		            seriesPointAttr[''].fill = color;
+		            seriesPointAttr.hover.fill = Highcharts.Color(color).brighten(0.3).get();
+		            seriesPointAttr.select.fill = color;
+	            }else{
+	            	var seriesPointAttr = merge(series.pointAttr);
+	            }
+	            
+	            points[i].pointAttr = seriesPointAttr;
+	        }
+	
+	        originalDrawPoints.call(this);
+	    }
+
+		//常量本地化设置
+		Highcharts.setOptions({
+			global: {
+	            useUTC: false
+	        },
+			lang: {
+				rangeSelectorFrom:"日期",
+				rangeSelectorTo:"至",
+				rangeSelectorZoom:"范围"
+			},
+			shortMonths:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+         	weekdays:['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+		});
+
+
+		var $reporting = $("#report");
+		// split the data set into ohlc and volume
+		var ohlc = [],
+			volume = [],
+			chg = [],
+			percent = [],
+			turnrate = [],
+			ma5 = [],
+			ma10 = [],
+			ma20 = [],
+			ma30 = [],
+			dif = [],
+			dea = [],
+			macd = [],
+			buy = [],
+			sell = [],
+			symbol = fdata.stock.symbol,
+			data = fdata.chartlist,
+			dataLength = data.length;
+			
+		for (i = 0; i < dataLength; i++) {
+			var timeStamp = (new Date(data[i].time)).getTime();
+			ohlc.push([
+				timeStamp, // the date
+				data[i].open, // open
+				data[i].high, // high
+				data[i].low, // low
+				data[i].close // close
+			]);			
+
+			ma5.push([
+				timeStamp,
+				data[i].ma5
+			]);
+
+			ma10.push([
+				timeStamp,
+				data[i].ma10
+			]);
+
+			ma20.push([
+				timeStamp,
+				data[i].ma20
+			]);
+
+			ma30.push([
+				timeStamp,
+				data[i].ma30
+			]);
+
+			dif.push([
+				timeStamp,
+				data[i].dif
+			]);
+
+			dea.push([
+				timeStamp,
+				data[i].dea
+			]);
+
+			macd.push([
+				timeStamp,
+				data[i].macd
+			]);
+
+			volume.push([
+				timeStamp, // the date
+				data[i].volume // the volume
+			])
+		}
+		buy.push([1400688000000,45.3],
+			[1401033600000,45.9],
+			[1401379200000,44.0]);
+
+		sell.push([1401033600000,43.5],
+			[1402329600000,46.3],
+			[1403193600000,46.8]);
+
+		//console.log(ma20);
+		// set the allowed units for data grouping
+		/*var groupingUnits = [[
+			'week',                         // unit name
+			[1]                             // allowed multiples
+		], [
+			'month',
+			[1, 2, 3, 4, 6]
+		]];*/
+
+		// create the chart
+		$('#container').highcharts('StockChart', {
+		    
+		    rangeSelector: {
+				inputEnabled: $('#container').width() > 480,
+		        selected: 1,
+		        inputDateFormat: '%Y/%m/%d',
+				inputEditDateFormat: '%Y/%m/%d',
+		        buttons: [
+		        {
+					type: 'month',
+					count: 1,
+					text: '1月'
+				}, {
+					type: 'month',
+					count: 3,
+					text: '3月'
+				}, {
+					type: 'month',
+					count: 6,
+					text: '6月'
+				}, {
+					type: 'ytd',
+					text: '至今'
+				}, {
+					type: 'year',
+					count: 1,
+					text: '1年'
+				}, {
+					type: 'all',
+					text: '所有'
+				}],
+		    },
+
+
+
+		    title: {
+		        text: '('+symbol+')股票情况'
+		    },
+
+		    credits:{
+	            text: 'jia58960',
+	            href: 'http://jia58960.me'
+	        },
+
+		    tooltip: {
+		    	positioner: function () { //设置tips显示的相对位置
+		    		var halfWidth = this.chart.chartWidth/2;//chart宽度
+		    		var width = this.chart.chartWidth-155;
+		    		var height = this.chart.chartHeight/5-8;//chart高度
+		    		if(relativeWidth<halfWidth){
+		    			return { x: width, y:height };
+		    		}else{
+		    			return { x: 30, y: height };
+		    		}
+		    	},
+
+		    	xDateFormat: '%Y/%m/%d, %A',
+
+		    	formatter: function() {
+		    		if(this.y == undefined) {
+					   	return;
+				   	}
+		    		for (var i = 0; i < dataLength; i++) {
+		    			if(this.x == (new Date(data[i].time)).getTime() ){
+		    				percent = parseFloat(data[i].percent).toFixed(2);
+					   		chg = parseFloat(data[i].chg).toFixed(2);
+					   		turnrate = parseFloat(data[i].turnrate).toFixed(2);
+					   		zs = parseFloat(data[i-1].close).toFixed(2);
+					   		//console.log(percent);
+		    			}
+		    		}
+
+		    		open = this.points[0].point.open.toFixed(2);
+				    high = this.points[0].point.high.toFixed(2);
+				    low = this.points[0].point.low.toFixed(2);
+				   	close = this.points[0].point.close.toFixed(2);
+				   	y = (this.points[1].point.y*0.0001).toFixed(2);
+				    MA5 =this.points[2].y.toFixed(2);
+				    MA10 =this.points[3].y.toFixed(2);
+				    MA20 =this.points[4].y.toFixed(2);
+				    MA30 =this.points[5].y.toFixed(2);
+
+				    relativeWidth = this.points[0].point.shapeArgs.x;
+
+				    
+				    if (this.points[6]){
+				    	bPrice = this.points[6].y.toFixed(2);	
+				    } else {
+				    	bPrice = '';
+				    }
+				    if (this.points[7]){
+				    	sPrice = this.points[7].y.toFixed(2);
+				    } else {
+				    	sPrice = '';
+				    }
+				    /*
+						*/
+				    
+				    //DIF = this.points[0].point.dif.toFixed(2);
+				    //DEA = 
+				    
+				    //return Highcharts.dateFormat('%Y-%m-%d', this.x) +'/';
+
+					var stockSymbol = this.points[0].series.name;
+					var tip = '<b>'+ Highcharts.dateFormat('%Y-%m-%d', this.x) +'</b><br/>';
+				      if(open>zs){
+		    			  tip += '开盘价：<span style="color: #DD2200;">'+open+' </span><br/>';
+		    		  }else{
+		    			  tip += '开盘价：<span style="color: #33AA11;">'+open+' </span><br/>';
+		    		  } 
+		    		  if(high>zs){
+		    			  tip += '最高价：<span style="color: #DD2200;">'+high+' </span><br/>';
+		    		  }else{
+		    			  tip += '最高价：<span style="color: #33AA11;">'+high+' </span><br/>';
+		    		  } 
+		    		  if(low>zs){
+		    			  tip += '最低价：<span style="color: #DD2200;">'+low+' </span><br/>';
+		    		  }else{
+		    			  tip += '最低价：<span style="color: #33AA11;">'+low+' </span><br/>';
+		    		  }
+		    		  if(close>zs){
+		    			  tip += '收盘价：<span style="color: #DD2200;">'+close+' </span><br/>';
+		    		  }else{
+		    			  tip += '收盘价：<span style="color: #33AA11;">'+close+' </span><br/>';
+		    		  }
+		    		  if(chg>0){
+		    			  tip += '涨跌额：<span style="color: #DD2200;">'+chg+' </span><br/>';
+		    		  }else{
+		    			  tip += '涨跌额：<span style="color: #33AA11;">'+chg+' </span><br/>';
+		    		  }
+		    		  if(percent>0){
+		    			  tip += '涨跌幅：<span style="color: #DD2200;">'+percent+' %</span><br/>';
+		    		  }else{
+		    			  tip += '涨跌幅：<span style="color: #33AA11;">'+percent+' %</span><br/>';
+		    		  }
+		    		  if(y>10000){
+		    			  tip += "成交量："+(y*0.0001).toFixed(2)+"(亿股)<br/>";
+		    		  }else{
+		    			  tip += "成交量："+y+"(万股)<br/>";
+		    		  }
+
+		    		  tip += "换手率："+turnrate+"%<br/>";
+
+		    		  if (bPrice!==''){
+		    		  	tip+='<b style="color:#f00">买入价：</b>'+bPrice+"<br/>";
+		    		  }
+
+		    		  if(sPrice!==''){
+		    		  	tip+="<b style='color:#0f0'>卖出价：</b>"+sPrice+"<br/>";
+		    		  }
+
+		    		  $reporting.html(
+    				  '  <span style="font-weight:bold">'+stockSymbol+'</span>'
+	    				+ '  <span>开盘:</span>'+ open
+	    				+'  <span>收盘:</span>'+close
+	              		+'  <span>最高:</span>'+ high
+	              		+'  <span>最低:</span>'+ low
+	              		+'  <span style="padding-left:15px;"> </span>'+	Highcharts.dateFormat('%Y-%m-%d',this.x)
+	              		+'	<br/><b style="color:#1aadce;">MA5</b> '+ MA5
+	              		+'  <b style="color: #8bbc21;padding-left:50px">MA10 </b> '+ MA10
+	              		+'  <b style="color: #ffca53;padding-left:50px">MA20 </b> '+ MA20
+	              		+'  <b style="color:#910000;padding-left:50px">MA30</b> '+ MA30
+	              		);
+
+				    return tip;
+
+		    	},
+		    },
+
+		    plotOptions: {
+		    	spline: {
+		    		marker:{
+		    			states: {
+		                    hover: {
+		                        enabled: false
+		                    }
+	                	},
+		    		}
+		    	},
+		    	
+		    	//修改蜡烛颜色
+		    	candlestick: {
+		    		color: '#33AA11',
+		    		upColor: '#DD2200',
+		    		lineColor: '#33AA11',	    		
+		    		upLineColor: '#DD2200', 
+		    		marker:{
+		    			states:{
+		    				hover:{
+		    					enabled:false,
+		    				}
+		    			}
+		    		}
+		    	},
+
+		    	line: {
+		    		//cursor: 'pointer',
+	                marker: {
+	                    enabled: true,
+	                    states: {
+		                    hover: {
+								lineWidthPlus: 1, 
+								radiusPlus: 1
+		                    }
+	                	},
+	                },
+	            },
+	    	
+		    },
+
+		    xAxis: {
+		    	tickPixelInterval: 150,
+		    	type: 'datetime',
+        		dateTimeLabelFormats: {
+					second: '%Y-%m-%d<br/>%H:%M:%S',
+					minute: '%Y-%m-%d<br/>%H:%M',
+					hour: '%Y-%m-%d<br/>%H:%M',
+					day: '%Y/%m/%d',
+					week: '%Y/%m/%d',
+					month: '%Y/%m',
+					year: '%Y'
+				}
+		    },
+
+		    yAxis: [{
+		        labels: {
+		    		align: 'right',
+		    		x: -5
+		    	},
+		        title: {
+		            text: 'OHLC'
+		        },
+		        height: '60%',
+		        lineWidth: 1
+		    }, {
+		    	labels: {
+		    		align: 'right',
+		    		x: -3
+		    	},
+		        title: {
+		            text: '成交量'
+		        },
+		        top: '65%',
+		        height: '35%',
+		        offset: 0,
+		        lineWidth: 1
+		    }],
+		    
+		    series: [
+		    {
+		        type: 'candlestick',
+		        name: symbol,
+		        data: ohlc,
+		        dataGrouping: {
+					enabled: false
+		        }
+		    }, {
+		        type: 'column',
+		        name: '成交量',
+		        data: volume,
+		        yAxis: 1,
+		        dataGrouping: {
+					enabled: false
+		        }
+		     },
+	        {
+		        type: 'spline',
+		        name: 'MA5',
+		        color:'#1aadce',
+		        data: ma5,
+		        lineWidth:1,
+		        dataGrouping: {
+					enabled: false
+				}
+		    },{
+		        type: 'spline',
+		        name: 'MA10',
+		        data: ma10,
+		        color:'#8bbc21',
+		        threshold: null, 
+		        lineWidth:1,
+		        dataGrouping: {
+					enabled: false
+				}
+		    },{
+		        type: 'spline',
+		        name: 'MA20',
+		        data: ma20,
+		        color:'#ffca53',
+		        threshold: null, 
+		        lineWidth:1,
+		        dataGrouping: {
+					enabled: false
+				}
+		    },{
+		        type: 'spline',
+		        name: 'MA30',
+		        data: ma30,
+		        color:'#910000',
+		        threshold: null, 
+		        lineWidth:1,
+		        dataGrouping: {
+					enabled: false
+				}
+		    },{
+		    	type: 'line',
+		    	name: '买入情况',
+		    	data: buy,
+		    	color: '#FFE9A3',
+		    	lineWidth: 2,
+		    	marker: {
+                	lineWidth: 1,
+                	radius: 5
+            	}
+		    },
+		    {
+		    	type: 'line',
+		    	name: '卖出情况',
+		    	data: sell,
+		    	color: '#A656E8',
+		    	lineWidth: 2,
+		    	marker: {
+                	lineWidth: 1,
+                	radius: 5
+            	}
+		    }
+
+		    ]
+		});
+	});
+});
+		</script>
+	</head>
+	<body>
+
+<script src="Highstock/js/highstock.js"></script>
+<script src="Highstock/js/themes/dark-blue.js"></script>
+<script src="Highstock/js/modules/exporting.js"></script>
+
+<div id="report" style="height:50px;padding-top:5px;width:800px;margin: 0 auto;font-family:microsoft yahei"></div>
+<div id="container" style="height: 500px; max-width: 1000px;margin: 0 auto;"></div>
+	</body>
+</html>

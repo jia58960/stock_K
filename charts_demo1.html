@@ -1,0 +1,411 @@
+<html>
+    <head>
+        <title>highcharts报表示例-www.jbxue.com</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <script type="text/javascript" src="jquery-2.0.0.min.js"></script>
+        <script type="text/javascript">
+            $(function () {
+                var chart;
+                $(document).ready(function() {
+                    /**
+                     * highcharts数据图表
+                     * 
+                     * @param {object} chart 图表的相关参数配置
+                     * @param {object} credits 图表版权信息参数配置
+                     * @param {object} lang 图表语言参数配置
+                     * @param {object} exporting 导出配置
+                     * @param {object} title 标题配置
+                     * @param {object} xAxis X轴配置
+                     * @param {object} yAxis Y轴配置
+                     * @param {object} plotOptions 各类型图表绘制配置
+                     * @param {object} labels 数据图表标签配置
+                     * @param {array} series 数据源配置
+                     */
+                    chart = new Highcharts.Chart({
+                        /**
+                         * 图表配置
+                         * 
+                         * @param {string} renderTo 图表加载的位置
+                         * @param {int} width 图表的宽度
+                         * @param {int} hight 图表的高度
+                         * @param {string} type 图表的默认类型
+                         * @param {string} zoomType 图表的缩放选项，有：x, y, xy
+                         */
+                        chart: {
+                            // 图表加载的位置
+                            renderTo: 'container',
+                            // 图表宽度
+                            width: 600,
+                            // 图表高度
+                            hight: 500,
+                            // 默认图表类型
+                            type: 'line',
+                            // 缩放配置：x，y，xy
+                            zoomType: ''
+                        },
+
+                        /**
+                         * 版权信息配置，不用修改直接复制
+                         * 
+                         * @param {boolean} enabled 是否显示版权信息
+                         * @param {string} href 版权信息所链接到的地址
+                         * @param {string} text 版权信息所显示的文字内容
+                         */
+                        credits:{
+                            enabled: false,
+                            href: "http://www.jbxue.com/Admin",
+                            text: '脚本学堂'
+                        },
+
+                        /**
+                         * 语言配置，不用修改直接复制
+                         * 
+                         * @param {string} exportButtonTitle 导出按钮的标题文字
+                         * @param {string} printButtonTitle 打印按钮的标题文字
+                         */
+                        lang:{
+                            exportButtonTitle:'导出PDF',
+                            printButtonTitle:'打印报表'
+                        },
+
+                        /**
+                         * 导出配置，不用修改直接复制
+                         * 
+                         * @param {boolean} enabled 是否允许导出
+                         * @param {object} buttons 关于与导出和打印按钮相关的配置对象
+                         * @param {string} filename 导出文件的文件名
+                         * @param {string} type 默认导出文件的格式
+                         */
+                        exporting:{
+                            // 是否允许导出
+                            enabled:true,
+                            // 按钮配置
+                            buttons:{
+                                // 导出按钮配置
+                                exportButton:{
+                                    menuItems: null,
+                                    onclick: function() {
+                                        this.exportChart();
+                                    }
+                                },
+                                // 打印按钮配置
+                                printButton:{
+                                    enabled:false
+                                }
+                            },
+                            // 文件名
+                            filename: '报表',
+                            // 导出文件默认类型
+                            type:'application/pdf'
+                        },
+
+                        /**
+                         * 图表的标题
+                         * 
+                         * @param {string} text 图表的标题，如果不需要显示标题，直接设置为空字符串就行
+                         */
+                        title: {
+                            text: '联合图表实例'
+                        },
+
+                        /**
+                         * X轴配置
+                         * 
+                         * @param {array} categories X轴坐标分类值
+                         * @param {object} labels 坐标标签配置对象
+                         * @param {int} tickInterval 坐标轴的步进值
+                         * @param {object} title 坐标轴标题
+                         */
+                        xAxis: {
+                            // X轴分类
+                            categories: ['苹果', '桔子', '梨子', '香蕉', '李子'],
+                            // 坐标轴的标签
+                            labels:{
+                                // 标签位置
+                                align: 'center',
+                                // 标签格式化
+                                formatter: function(){
+                                    return this.value;
+                                },
+                                // 标签旋转度数
+                                //rotation: 20,
+                                // 标签交错显示的行数
+                                staggerLines: 1
+                            },
+                            // X轴的步进值，决定隔多少个显示一个
+                            tickInterval: 1,
+                            // 坐标轴标题
+                            title: {
+                                text: '水果分类'
+                            }
+                        },
+
+                        /**
+                         * y轴配置
+                         * 
+                         * @param {object} labels 坐标标签配置对象
+                         * @param {int} tickInterval 坐标轴的步进值
+                         * @param {object} title 坐标轴标题
+                         */
+                        yAxis: {
+                            // 坐标轴的标签
+                            labels:{
+                                // 标签位置
+                                align: 'right',
+                                // 标签格式化
+                                formatter: function(){
+                                    return this.value + '个';
+                                }
+                            },
+                            // y轴的步进值，决定隔多少个显示一个
+                            tickInterval: 4,
+                            // 坐标轴标题
+                            title: {
+                                text: '水果个数'
+                            }
+                        },
+
+                        /**
+                         * 绘图的各选项、参数配置
+                         * @param {object} series 数列，可以配置各种不同类型图表的默认参数
+                         * @param {object} bar 横向柱状图配置参数
+                         * @param {object} column 纵向柱状图配置参数
+                         * @param {object} line 线性图
+                         * @param {object} spline 圆滑曲线图配置参数
+                         * @param {object} pie 饼状图
+                         */
+                        plotOptions:{
+                            /**
+                             * 数列，对于所有的图表都可以适用的配置参数，属于共用性质。
+                             */
+                            series: {
+                                // 鼠标样式
+                                cursor: 'pointer',
+                                events:{
+                                    // 数据标注不可点击
+                                    legendItemClick: false
+                                },
+                                // 当是柱状图时，柱状的宽度
+                                pointWidth: 5
+                            },
+
+                            /**
+                             * 横向柱状图
+                             */
+                            bar:{
+                                // 数据点的点击事件
+                                events:{
+                                    click: function(event){
+                                        //alert('The bar was clicked, and you can add any other functions.');
+                                    }
+                                },
+                                // 当值为0时，在图表中柱状体的长度设置
+                                minPointLength: 2,
+                                // 当具体的数据点被点击时的事件响应函数。如果不需要事件响应，可以删除。
+                                point:{
+                                    events:{
+                                        click: function(){
+                                            alert('This point was clicked. You can and any other functions.');
+                                        }
+                                    }
+                                },
+                                // 是否在图注中显示。
+                                showInLegend: true,
+                                // 是否堆叠，默认：null，数值：normal，百分比：percent
+                                //stacking: 'normal',
+                                // 调整图像顺序关系
+                                zIndex: 1
+                            },
+
+                            /**
+                             * 纵向柱状图
+                             */
+                            column:{
+                                // 数据点的点击事件
+                                events:{
+                                    click: function(event){
+                                        alert('The bar was clicked, and you can add any other functions.');
+                                    }
+                                },
+                                // 当值为0时，在图表中柱状体的长度设置
+                                minPointLength: 2,
+                                // 当具体的数据点被点击时的事件响应函数。如果不需要事件响应，可以删除。
+                                point:{
+                                    events:{
+                                        click: function(){
+                                            alert('This point was clicked. You can and any other functions.');
+                                        }
+                                    }
+                                },
+                                // 是否在图注中显示。
+                                showInLegend: true,
+                                // 是否堆叠，默认：null，数值：normal，百分比：percent
+                                //stacking: null,
+                                // 调整图像顺序关系
+                                zIndex: 2
+                            },
+
+                            /**
+                             * 线性图，与spline的区别在于点与点之间的连线是直线还是圆滑曲线。
+                             */
+                            line:{
+                                // 允许线性图上的数据点进行点击
+                                allowPointSelect: true,
+                                // 数据点的点击事件
+                                events:{
+                                    click: function(event){
+                                        //alert('The bar was clicked, and you can add any other functions.');
+                                    }
+                                },
+                                // 当具体的数据点被点击时的事件响应函数。如果不需要事件响应，可以删除。
+                                point:{
+                                    events:{
+                                        click: function(){
+                                            //alert('This point on the line was clicked. You can and any other functions.');
+                                        }
+                                    }
+                                },
+                                // 是否在图注中显示。
+                                showInLegend: true,
+                                // 调整图像顺序关系
+                                zIndex: 3
+                            },
+
+                            /**
+                             * 曲线图，与spline的区别在于点与点之间的连线是直线还是圆滑曲线。
+                             */
+                            spline:{
+                                // 允许线性图上的数据点进行点击
+                                allowPointSelect: true,
+                                // 数据点的点击事件
+                                events:{
+                                    click: function(event){
+                                        alert('The bar was clicked, and you can add any other functions.');
+                                    }
+                                },
+                                // 当具体的数据点被点击时的事件响应函数。如果不需要事件响应，可以删除。
+                                point:{
+                                    events:{
+                                        click: function(){
+                                            //alert('This point on the line was clicked. You can and any other functions.');
+                                        }
+                                    }
+                                },
+                                // 是否在图注中显示。
+                                showInLegend: true,
+                                // 调整图像顺序关系
+                                zIndex: 3
+                            },
+
+                            /**
+                             * 饼状图
+                             */
+                            pie:{
+                                // 是否允许扇区点击
+                                allowPointSelect: true,
+                                // 点击后，滑开的距离
+                                slicedOffset: 5,
+                                // 饼图的中心坐标
+                                center: [50, 80],
+                                // 饼图的大小
+                                size: 100,
+                                // 数据标签
+                                dataLabels: {
+                                    // 是否允许标签
+                                    enabled: true,
+                                    // 标签与图像元素之间的间距
+                                    distance: 10
+                                },
+                                // 数据点的点击事件
+                                events:{
+                                    click: function(event){
+                                        //alert('The bar was clicked, and you can add any other functions.');
+                                    }
+                                },
+                                // 是否忽略隐藏的项
+                                ignoreHiddenPoint: true,
+                                // 当具体的数据点被点击时的事件响应函数。如果不需要事件响应，可以删除。
+                                point:{
+                                    events:{
+                                        click: function(){
+                                            //alert('This point on the line was clicked. You can and any other functions.');
+                                        }
+                                    }
+                                },
+                                // 是否在图注中显示。
+                                showInLegend: false,
+                                // 调整图像顺序关系
+                                zIndex: 0
+                            }
+                        },
+
+                        /**
+                         * 数据图表标签配置
+                         * 
+                         * @param {array} items 项目配置
+                         */
+                        labels: {
+                            items: [{
+                                    html: '水果总消耗量',
+                                    style: {
+                                        left: '65px',
+                                        top: '8px',
+                                        color: 'black'
+                                    }
+                                }]
+                        },
+
+                        /**
+                         * 数据源配置，本身是一个对象数组
+                         * 
+                         * @param {string} type 图表的类型
+                         * @param {string} name 数据序列的名称
+                         * @param {array} data 数据序列，是一个对象数组
+                         */
+                        series: [{
+                                type: 'column',
+                                name: 'Jane',
+                                data: [3, 2, 1, 3, 4]
+                            }, {
+                                type: 'column',
+                                name: 'John',
+                                data: [2, 3, 5, 7, 6]
+                            }, {
+                                type: 'column',
+                                name: 'Joe',
+                                data: [4, 3, 3, 9, 0]
+                            }, {
+                                type: 'spline',
+                                name: '平均',
+                                data: [3, 2.67, 3, 6.33, 3.33]
+                            }, {
+                                type: 'pie',
+                                name: '水果总消耗量',
+                                data: [{
+                                        name: 'Jane',
+                                        y: 13,
+                                        color: '#4572A7' // Jane's color
+                                    }, {
+                                        name: 'John',
+                                        y: 23,
+                                        color: '#AA4643' // John's color
+                                    }, {
+                                        name: 'Joe',
+                                        y: 19,
+                                        color: '#89A54E' // Joe's color
+                                    }]
+                            }]
+                    });
+                });
+
+            });
+        </script>
+    </head>
+    <body>
+    <script src="Highcharts/js/highcharts.js"></script>
+<script src="Highcharts/js/themes/dark-green.js"></script>
+<script src="Highcharts/js/modules/exporting.js"></script>
+
+        <div id="container"></div>
+    </body>
+</html>

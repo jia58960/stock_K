@@ -1,0 +1,201 @@
+<html>
+    <head>
+        <title>highstock报表示例-www.jbxue.com</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <script type="text/javascript" src="jquery-2.0.0.min.js"></script>
+        <!-- 源数据 -->
+        <script type="text/javascript" src="http://www.highcharts.com/samples/data/usdeur.js"></script>
+        <script type="text/javascript">
+            //图表
+            $(function() {
+                /**
+                 * highstock数据图表
+                 * 
+                 * @param {object} chart 图表的相关参数配置
+                 * @param {object} credits 图表版权信息参数配置
+                 * @param {object} lang 图表语言参数配置
+                 * @param {object} exporting 导出配置
+                 * @param {object} title 标题配置
+                 * @param {object} xAxis X轴配置
+                 * @param {array} series 数据源配置
+                 */
+                var chart1 = new Highcharts.StockChart({
+
+                    /**
+                     * 图表配置
+                     * 
+                     * @param {string} renderTo 图表加载的位置
+                     * @param {int} width 图表的宽度
+                     * @param {int} hight 图表的高度
+                     */
+                    chart: {
+                        renderTo: 'container',
+                        // 图表宽度
+                        width: 700,
+                        // 图表高度
+                        hight: 500
+                    },
+
+                    /**
+                     * 版权信息配置，不用修改直接复制
+                     * 
+                     * @param {boolean} enabled 是否显示版权信息
+                     * @param {string} href 版权信息所链接到的地址
+                     * @param {string} text 版权信息所显示的文字内容
+                     */
+                    credits:{
+                        enabled: false,
+                        href: "http://www.jbxue.com/Admin",
+                        text: '脚本学堂'
+                    },
+
+                    /**
+                     * 语言配置，不用修改直接复制
+                     * 
+                     * @param {array} months 配置月份语言
+                     * @param {array} shortMonths 配置短月份
+                     * @param {array} weekdays 配置星期
+                     * @param {string} exportButtonTitle 导出按钮的标题文字
+                     * @param {string} printButtonTitle 打印按钮的标题文字
+                     */
+                    lang:{
+                        months: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+                        shortMonths: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一', '十二'],
+                        weekdays: ['星期天', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
+                        exportButtonTitle:'导出PDF',
+                        printButtonTitle:'打印报表'
+                    },
+
+                    /**
+                     * 导出配置，不用修改直接复制
+                     * 
+                     * @param {boolean} enabled 是否允许导出
+                     * @param {object} buttons 关于与导出和打印按钮相关的配置对象
+                     * @param {string} filename 导出文件的文件名
+                     * @param {string} type 默认导出文件的格式
+                     */
+                    exporting:{
+                        // 是否允许导出
+                        enabled:true,
+                        // 按钮配置
+                        buttons:{
+                            // 导出按钮配置
+                            exportButton:{
+                                menuItems: null,
+                                onclick: function() {
+                                    this.exportChart();
+                                }
+                            },
+                            // 打印按钮配置
+                            printButton:{
+                                enabled:false
+                            }
+                        },
+                        // 文件名
+                        filename: '报表',
+                        // 配置导出接口
+                        url: 'http://' + location.hostname + '/test/Highcharts-2.3.2/example/exporting/index.php',
+                        // 导出文件默认类型
+                        type:'application/pdf'
+                    },
+
+                    /**
+                     * 图表的标题
+                     * 
+                     * @param {string} text 图表的标题，如果不需要显示标题，直接设置为空字符串就行
+                     */
+                    title: {
+                        text: '图表实例标题'
+                    },
+
+                    /**
+                     * 域选择配置
+                     * 
+                     * @param {array} buttons 缩放选择按钮
+                     * @param {int} selected 默认选择缩放按钮中的第几个
+                     * @param {boolean} inputEnabled 是否允许input标签选框
+                     */
+                    rangeSelector: {
+                        // 缩放选择按钮，是一个数组。
+                        // 其中type可以是： 'millisecond', 'second', 'minute', 'day', 'week', 'month', 'ytd' (year to date), 'year' 和 'all'。
+                        // 其中count是指多少个单位type。
+                        // 其中text是配置显示在按钮上的文字
+                        buttons: [{
+                                type: 'month',
+                                count: 1,
+                                text: '1月'
+                            }, {
+                                type: 'month',
+                                count: 3,
+                                text: '3月'
+                            }, {
+                                type: 'month',
+                                count: 6,
+                                text: '6月'
+                            }, {
+                                type: 'year',
+                                count: 1,
+                                text: '1年'
+                            },{
+                                type: 'year',
+                                count: 3,
+                                text: '3年'
+                            }, {
+                                type: 'all',
+                                text: '所有'
+                            }],
+                        // 默认选择域：0（缩放按钮中的第一个）、1（缩放按钮中的第二个）……
+                        selected: 1,
+                        // 是否允许input标签选框
+                        inputEnabled: false
+                    },
+
+                    /**
+                     * 气泡示说明标签
+                     * 
+                     * @param {string} xDateFormat 日期时间格式化
+                     */
+                    tooltip:{
+                        // 日期时间格式化
+                        xDateFormat: '%Y-%m-%d %A'
+                    },
+
+                    /**
+                     * X轴坐标配置
+                     * 
+                     * @param {object} dateTimeLabelFormats x轴日期时间格式化，不用修改直接使用
+                     */
+                    xAxis:{
+                        // 如果X轴刻度是日期或时间，该配置是格式化日期及时间显示格式
+                        dateTimeLabelFormats: {
+                            second: '%Y-%m-%d<br/>%H:%M:%S',
+                            minute: '%Y-%m-%d<br/>%H:%M',
+                            hour: '%Y-%m-%d<br/>%H:%M',
+                            day: '%Y<br/>%m-%d',
+                            week: '%Y<br/>%m-%d',
+                            month: '%Y-%m',
+                            year: '%Y'
+                        }
+                    },
+
+                    /**
+                     * 数据源配置，本身是一个对象数组
+                     * 
+                     * @param {string} name 数据序列的名称
+                     * @param {array} data 数据序列，是一个对象数组。data的结构：[[时间戳, 值], [时间戳, 值], [时间戳, 值], ……]
+                     */
+                    series: [{
+                            name: '数据名称',
+                            data: usdeur
+                        }]
+                });
+            });
+        </script>
+    </head>
+    <body>
+    <script src="Highstock/js/highstock.js"></script>
+<script src="Highstock/js/themes/dark-green.js"></script>
+<script src="Highstock/js/modules/exporting.js"></script>
+        <div id="container"></div>
+    </body>
+</html>
