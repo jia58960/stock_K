@@ -10,6 +10,9 @@ ${demo.css}
 		</style>
 		<script type="text/javascript">
 $(function() {
+		
+	//K线图
+
 	$.getJSON('http://xueqiu.com/stock/forchartk/stocklist.json?period=1day&symbol=SZ300104&type=normal&callback=?', function(fdata) {
 		 //修改colum条的颜色（重写了源码方法）
 	 var originalDrawPoints = Highcharts.seriesTypes.column.prototype.drawPoints;
@@ -123,13 +126,13 @@ $(function() {
 				data[i].volume // the volume
 			])
 		}
-		buy.push([1400688000000,45.3],
-			[1401033600000,45.9],
-			[1401379200000,44.0]);
+		buy.push([1400688000000,5.3],
+			[1401033600000,5.0],
+			[1401379200000,4.2]);
 
-		sell.push([1401033600000,43.5],
-			[1402329600000,46.3],
-			[1403193600000,46.8]);
+		sell.push([1401033600000,4.5],
+			[1402329600000,5.3],
+			[1403193600000,5.2]);
 
 		//console.log(ma20);
 		// set the allowed units for data grouping
@@ -286,11 +289,12 @@ $(function() {
 		    		  tip += "换手率："+turnrate+"%<br/>";
 
 		    		  if (bPrice!==''){
-		    		  	tip+='<b style="color:#f00">买入价：</b>'+bPrice+"<br/>";
+		    		  	tip+='<strong style="color:#f00">买入：</strong>'+bPrice+"<br/>";
+		    		  	
 		    		  }
 
 		    		  if(sPrice!==''){
-		    		  	tip+="<b style='color:#0f0'>卖出价：</b>"+sPrice+"<br/>";
+		    		  	tip+='<b style="color:#0f0">卖出：</b>'+sPrice+"<br/>";
 		    		  }
 
 		    		  $reporting.html(
@@ -338,7 +342,7 @@ $(function() {
 		    	},
 
 		    	line: {
-		    		//cursor: 'pointer',
+		    		cursor: 'pointer',
 	                marker: {
 	                    enabled: true,
 	                    states: {
@@ -348,6 +352,13 @@ $(function() {
 		                    }
 	                	},
 	                },
+	                point:{
+	                	events: {
+	                		mouseOver: function(){
+	                			console.log(this);
+	                		}
+	                	}
+	                }
 	            },
 	    	
 		    },
@@ -472,6 +483,72 @@ $(function() {
 		    ]
 		});
 	});
+
+//持股总览
+	$('#container2').highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: '乐视网(300104)持股一览表'
+            },
+            subtitle: {
+                text: '（目前为止乐视网持股情况）'
+            },
+            xAxis: {
+            	min: 0,
+                categories: ['5.62', '5.78', '5.93', '6.20', '6.31', '6.43', '6.51'],
+                title: {
+                    text: '买入单价(元)',
+                    style: {
+                    	fontFamily: 'microsoft yahei',
+                    	fontSize: '14px',
+                    	align: 'left'
+                    }
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: '持股数量 (手)',
+                    style: {
+                    	fontFamily: 'microsoft yahei',
+                    	fontSize: '14px',
+                    	align: 'left'
+                    }
+                }
+            },
+            tooltip: {
+            	
+                formatter: function() {
+                	return '<b>'+this.x+'元：'+ this.y +'手</b>';
+            	}
+            },
+            legend: {
+                align: 'right',
+                verticalAlign: 'top',
+                enabled: false,
+                borderWidth: 1,               
+                shadow: true,
+                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColorSolid) || 'white',
+            },
+            plotOptions: {
+	            column: {
+	                stacking: 'normal',
+	                dataLabels: {
+	                    enabled: true,
+	                    color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+	                }
+	            }
+	        },
+            series: [
+            	{
+            	name: '持股数: ',
+                data: [9, 5, 4, 2, 6, 1, 7]
+            	}
+        	]
+        });
+
 });
 		</script>
 	</head>
@@ -481,7 +558,9 @@ $(function() {
 <script src="Highstock/js/themes/dark-blue.js"></script>
 <script src="Highstock/js/modules/exporting.js"></script>
 
-<div id="report" style="height:50px;padding-top:5px;width:800px;margin: 0 auto;font-family:microsoft yahei"></div>
-<div id="container" style="height: 500px; max-width: 1000px;margin: 0 auto;"></div>
+<div id="report" style="height:50px;padding-top:5px;width:800px;font-family:microsoft yahei"></div>
+<div id="container" style="height: 500px; width: 800px;margin:10px;float:left"></div>
+<div id="container2" style="min-width: 310px; width: 600px; height: 400px; margin:5px;float:left"></div>
+<div style="clear:both"></div>
 	</body>
 </html>
