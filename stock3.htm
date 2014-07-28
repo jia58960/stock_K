@@ -10,104 +10,209 @@ ${demo.css}
 		</style>
 		<script type="text/javascript">
 $(function() {
-	$.getJSON('http://xueqiu.com/stock/forchartk/stocklist.json?period=1day&symbol=SZ300104&type=normal&callback=?', function(fdata) {
+	var getCurrentD=function(){
+			$.getJSON('http://xueqiu.com/stock/quotec.json?code=SZ002261&callback=?', 
+				function(cdata){
+				var cPrice = cdata[0][1],
+					cRate = cdata[0][2],
+					cPercentage = cdata[0][3];
 
-		// split the data set into ohlc and volume
-		var ohlc = [],
-			volume = [],
-			data = fdata.chartlist,
-			dataLength = data.length-1;
+				if (cRate<0){
+					$("#currentQuote").css('color','#338833');
+				} else {
+					$("#currentQuote").css('color','#cc1100');
+					cRate = '+'+cRate;
+					cPercentage = '+'+cPercentage;
+				}
+				$("#currentQuote").html('<span style="font-size:34px;font-weight:bold">￥'+cPrice+'</span><span style="font-size:16px">'+cRate+'('+cPercentage+'%)</span>');
+			})
+		};
+	getCurrentD();
 
-			console.log(data);
-			
+	var d = new Date(),hour = d.getHours();
+	//上午9-12、下午13-16执行
+	if ((hour >= 9 && hour <= 11) || (hour >= 13 && hour <=15)){
+		setInterval(getCurrentD,2000);
+	}
+	
+
+	var hDataFunc = function(){
+		$.getJSON('http://xueqiu.com/stock/forchart/stocklist.json?symbol=SZ002261&period=1d&callback=?', function(fdata) {
+
+		var data = fdata.chartlist,
+			lineData = [],
+			volData = [],
+			symbol = fdata.stock.symbol,
+			dataLength = data.length;
+
 		for (i = 0; i < dataLength; i++) {
 			var timeStamp = (new Date(data[i].time)).getTime();
-			ohlc.push([
-				timeStamp, // the date
-				data[i].open, // open
-				data[i].high, // high
-				data[i].low, // low
-				data[i].close // close
-			]);			
-			
-			volume.push([
-				timeStamp, // the date
-				data[i].volume // the volume
+
+			lineData.push([
+				timeStamp,
+				data[i].current
+			]);
+
+			volData.push([
+				timeStamp,
+				data[i].volume
 			])
 		}
+		//常量本地化设置
+		Highcharts.setOptions({
+			global: {
+	            useUTC: false
+	        },
+			lang: {
+				rangeSelectorFrom:"日期",
+				rangeSelectorTo:"至",
+				rangeSelectorZoom:"范围"
+			},
+			shortMonths:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+         	weekdays:['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+		});
 
-		// set the allowed units for data grouping
-		var groupingUnits = [[
-			'week',                         // unit name
-			[1]                             // allowed multiples
-		], [
-			'month',
-			[1, 2, 3, 4, 6]
-		]];
-
-		// create the chart
+		// Create the chart
 		$('#container').highcharts('StockChart', {
-		    
-		    rangeSelector: {
-				inputEnabled: $('#container').width() > 480,
-		        selected: 1
+
+			chart : {
+				events : {
+					load : function() {
+
+						// set up the updating of the chart each second
+						var series = this.series[0],series2 = this.series[1];
+						
+						if ((hour >= 9 && hour <= 11) || (hour >= 13 && hour <=15)){
+								setInterval(function() {
+								$.getJSON('http://xueqiu.com/stock/forchart/stocklist.json?symbol=SZ002261&period=1d&callback=?', function(data) {
+									
+									var ndata = data.chartlist[data.chartlist.length-1];
+									var y = ndata.current, // current time
+										x = (new Date(ndata.time)).getTime(),
+										z = ndata.volume;
+										console.log(x);
+										console.log(y);
+										console.log(z);
+
+									series.addPoint([x, y], true, true);
+									series2.addPoint([x,z], true, true);
+								});						
+							}, 180000); //每三分钟获取一次
+						}
+						
+					}
+				}
+			},
+
+			rangeSelector : {
+				enabled:false
+			},
+
+			title: {
+		        text: '('+symbol+')股票分时图'
+		    },
+			
+		    credits: {
+		    	text: 'jia58960',
+	            href: 'http://jia58960.me',
+		    	position: {
+					align: 'right',
+					x: -15,
+					verticalAlign: 'bottom',
+					y: -2
+				}
 		    },
 
-		    title: {
-		        text: 'AAPL Historical'
+		    tooltip: {
+		    	xDateFormat: '%Y/%m/%d, %A',
+
+		    	formatter: function(){
+		    		if(this.y == undefined) {
+					   	return;
+				   	}
+				   	console.log(this.points[0]);
+		    		//current = this.points[0].point.current.toFixed(2);
+
+		    		//return ;
+		    		var stockSymbol = this.points[0].series.name;
+
+
+
+		    	}
 		    },
 
-		    yAxis: [{
+			series : [{
+				name : symbol,
+				data : lineData,
+				tooltip: {
+					valueDecimals: 2
+				}
+			},{
+		        type: 'column',
+		        name: '成交量',
+		        data: volData,
+		        yAxis: 1,
+		        dataGrouping: {
+					enabled: false
+		        }
+		     }],
+
+		     xAxis: {
+		    	tickPixelInterval: 150,
+		    	type: 'datetime',
+        		dateTimeLabelFormats: {
+					second: '%H:%M:%S',
+					minute: '%H:%M',
+					hour: '%H:%M',
+					day: '%Y/%m/%d',
+					week: '%Y/%m/%d',
+					month: '%Y/%m',
+					year: '%Y'
+				}
+		    },
+
+			yAxis: [{
 		        labels: {
 		    		align: 'right',
-		    		x: -3
+		    		x: -5
 		    	},
 		        title: {
 		            text: 'OHLC'
 		        },
 		        height: '60%',
-		        lineWidth: 2
+		        lineWidth: 1
 		    }, {
 		    	labels: {
 		    		align: 'right',
 		    		x: -3
 		    	},
 		        title: {
-		            text: 'Volume'
+		            text: '成交量'
 		        },
 		        top: '65%',
 		        height: '35%',
 		        offset: 0,
-		        lineWidth: 2
-		    }],
-		    
-		    series: [{
-		        type: 'candlestick',
-		        name: 'AAPL',
-		        data: ohlc,
-		        dataGrouping: {
-					units: groupingUnits
-		        }
-		    }, {
-		        type: 'column',
-		        name: 'Volume',
-		        data: volume,
-		        yAxis: 1,
-		        dataGrouping: {
-					units: groupingUnits
-		        }
+		        lineWidth: 1
 		    }]
 		});
 	});
+	}
+
+	hDataFunc();
+	//setInterval(hDataFunc,5000);
+	
+
 });
+
 		</script>
 	</head>
 	<body>
 <script src="Highstock/js/highstock.js"></script>
-<script src="Highstock/js/themes/dark-green.js"></script>
+<!-- <script src="Highstock/js/themes/dark-blue.js"></script> -->
 <script src="Highstock/js/modules/exporting.js"></script>
-
-
-<div id="container" style="height: 400px; min-width: 310px"></div>
+<div id="currentQuote" style="width:600px;margin:0 auto;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
+	
+</div>
+<div id="container" style="height: 400px; width: 600px;margin:0 auto"></div>
 	</body>
 </html>

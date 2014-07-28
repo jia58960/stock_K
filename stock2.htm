@@ -13,7 +13,7 @@ $(function() {
 		
 	//K线图
 
-	$.getJSON('http://xueqiu.com/stock/forchartk/stocklist.json?period=1day&symbol=SZ300104&type=normal&callback=?', function(fdata) {
+	$.getJSON('http://xueqiu.com/stock/forchartk/stocklist.json?period=1day&symbol=SZ002261&type=normal&callback=?', function(fdata) {
 		 //修改colum条的颜色（重写了源码方法）
 	 var originalDrawPoints = Highcharts.seriesTypes.column.prototype.drawPoints;
 	    Highcharts.seriesTypes.column.prototype.drawPoints = function () {
@@ -177,8 +177,6 @@ $(function() {
 					text: '所有'
 				}],
 		    },
-
-
 
 		    title: {
 		        text: '('+symbol+')股票情况'
@@ -457,7 +455,7 @@ $(function() {
 		        dataGrouping: {
 					enabled: false
 				}
-		    },{
+		    }/*,{
 		    	type: 'line',
 		    	name: '买入情况',
 		    	data: buy,
@@ -478,14 +476,14 @@ $(function() {
                 	lineWidth: 1,
                 	radius: 5
             	}
-		    }
+		    }*/
 
 		    ]
 		});
 	});
 
 //持股总览
-	$('#container2').highcharts({
+	/*$('#container2').highcharts({
             chart: {
                 type: 'bar'
             },
@@ -547,7 +545,7 @@ $(function() {
                 data: [9, 5, 4, 2, 6, 1, 7]
             	}
         	]
-        });
+        });*/
 
 });
 		</script>
@@ -559,8 +557,8 @@ $(function() {
 <script src="Highstock/js/modules/exporting.js"></script>
 
 <div id="report" style="height:50px;padding-top:5px;width:800px;font-family:microsoft yahei"></div>
-<div id="container" style="height: 500px; width: 800px;margin:10px;float:left"></div>
-<div id="container2" style="min-width: 310px; width: 600px; height: 400px; margin:5px;float:left"></div>
+<div id="container" style="height: 500px; width: 800px;margin:0px auto;"></div>
+<!-- <div id="container2" style="min-width: 310px; width: 600px; height: 400px; margin:5px;float:left"></div> -->
 <div style="clear:both"></div>
 	</body>
 </html>
