@@ -380,6 +380,7 @@ $(function() {
 		    		align: 'right',
 		    		x: -5
 		    	},
+		    	tickInterval: 2,
 		        title: {
 		            text: 'OHLC'
 		        },
@@ -483,7 +484,7 @@ $(function() {
 	});
 
 //持股总览
-	/*$('#container2').highcharts({
+	$('#container2').highcharts({
             chart: {
                 type: 'bar'
             },
@@ -545,7 +546,7 @@ $(function() {
                 data: [9, 5, 4, 2, 6, 1, 7]
             	}
         	]
-        });*/
+        });
 
 });
 		</script>
@@ -553,12 +554,12 @@ $(function() {
 	<body>
 
 <script src="Highstock/js/highstock.js"></script>
-<script src="Highstock/js/themes/dark-blue.js"></script>
+
 <script src="Highstock/js/modules/exporting.js"></script>
 
 <div id="report" style="height:50px;padding-top:5px;width:800px;font-family:microsoft yahei"></div>
 <div id="container" style="height: 500px; width: 800px;margin:0px auto;"></div>
-<!-- <div id="container2" style="min-width: 310px; width: 600px; height: 400px; margin:5px;float:left"></div> -->
+<div id="container2" style="min-width: 310px; width: 600px; height: 400px; margin:5px;float:left"></div>
 <div style="clear:both"></div>
 	</body>
 </html>
